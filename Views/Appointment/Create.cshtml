@@ -1,0 +1,77 @@
+@model HospitalManagement.Web.DTOs.AppointmentDTO
+@{
+    ViewData["Title"] = "Book Appointment";
+}
+
+<div class="page-header">
+    <h1 class="page-title"><i class="bi bi-calendar-plus-fill me-2 text-primary-custom"></i>Book Appointment</h1>
+    <p class="page-subtitle">Schedule a new appointment between a doctor and patient.</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-xl-7">
+        <div class="card">
+            <div class="card-header">Appointment Details</div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger py-2 mb-4" style="font-size:.85rem">
+                            @Html.ValidationSummary(true, "", new { @class = "mb-0" })
+                        </div>
+                    }
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="DoctorId" class="form-label">Doctor *</label>
+                            <select asp-for="DoctorId" asp-items="ViewBag.Doctors" class="form-select" id="apptDoctor">
+                                <option value="">— Select Doctor —</option>
+                            </select>
+                            <span asp-validation-for="DoctorId" class="text-danger" style="font-size:.75rem"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="PatientId" class="form-label">Patient *</label>
+                            @if (ViewBag.IsPatient == true)
+                            {
+                                <input type="hidden" asp-for="PatientId" />
+                                <input type="text" class="form-control" value="@ViewBag.PatientName" readonly style="background:var(--bg-body)" />
+                            }
+                            else
+                            {
+                                <select asp-for="PatientId" asp-items="ViewBag.Patients" class="form-select" id="apptPatient">
+                                    <option value="">— Select Patient —</option>
+                                </select>
+                            }
+                            <span asp-validation-for="PatientId" class="text-danger" style="font-size:.75rem"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="AppointmentDate" class="form-label">Date & Time *</label>
+                            <input asp-for="AppointmentDate" class="form-control" type="datetime-local" />
+                            <span asp-validation-for="AppointmentDate" class="text-danger" style="font-size:.75rem"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Type" class="form-label">Type</label>
+                            <select asp-for="Type" asp-items="ViewBag.Types" class="form-select"></select>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Status" class="form-label">Status</label>
+                            <select asp-for="Status" asp-items="ViewBag.Statuses" class="form-select"></select>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Notes" class="form-label">Notes</label>
+                            <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Symptoms, special instructions…"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle me-2"></i>Book Appointment</button>
+                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts { @{await Html.RenderPartialAsync("_ValidationScriptsPartial");} }

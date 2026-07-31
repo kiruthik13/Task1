@@ -1,0 +1,331 @@
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<!-- Reference Image: 4 KPI Stat Cards Grid (Live PostgreSQL Data + Dynamic Trend Calculations) -->
+<div class="row g-4 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="kpi-card">
+            <div>
+                <div class="kpi-title">Total Patients</div>
+                <div class="kpi-value" id="kpiTotalPatients">@ViewBag.TotalPatients</div>
+                <div class="kpi-trend" id="kpiPatientTrend">
+                    <i class="bi bi-arrow-up-right"></i>@ViewBag.PatientTrendText
+                </div>
+            </div>
+            <div class="kpi-icon-badge kpi-icon-blue">
+                <i class="bi bi-people-fill"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="kpi-card">
+            <div>
+                <div class="kpi-title">Active Doctors</div>
+                <div class="kpi-value" id="kpiTotalDoctors">@ViewBag.TotalDoctors</div>
+                <div class="kpi-trend" id="kpiDoctorTrend">
+                    <i class="bi bi-arrow-up-right"></i>@ViewBag.DoctorTrendText
+                </div>
+            </div>
+            <div class="kpi-icon-badge kpi-icon-teal">
+                <i class="bi bi-person-badge-fill"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="kpi-card">
+            <div>
+                <div class="kpi-title">Appointments Today</div>
+                <div class="kpi-value" id="kpiTodayAppointments">@ViewBag.TodayAppointments</div>
+                <div class="kpi-trend" id="kpiTodayAppointmentsTrend">
+                    <i class="bi bi-arrow-up-right"></i>@ViewBag.TodayAppointmentsTrendText
+                </div>
+            </div>
+            <div class="kpi-icon-badge kpi-icon-purple">
+                <i class="bi bi-calendar-event-fill"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="kpi-card">
+            <div>
+                <div class="kpi-title">Completed Today</div>
+                <div class="kpi-value" id="kpiCompletedToday">@ViewBag.CompletedToday</div>
+                <div class="kpi-trend" id="kpiCompletedTodayTrend">
+                    <i class="bi bi-arrow-up-right"></i>@ViewBag.CompletedTodayTrendText
+                </div>
+            </div>
+            <div class="kpi-icon-badge kpi-icon-orange">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reference Image Middle Row: Appointments Overview Chart + Recent Appointments Card -->
+<div class="row g-4 mb-4">
+    <!-- Appointments Overview Curve Line Chart -->
+    <div class="col-xl-7">
+        <div class="card h-100">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span class="fw-700">Appointments Overview</span>
+                <select class="form-select form-select-sm py-1 px-3" style="width:auto;border-radius:12px;font-size:0.8rem">
+                    <option>This Week</option>
+                    <option>This Month</option>
+                </select>
+            </div>
+            <div class="card-body">
+                <div id="appointmentsOverviewChart" style="min-height: 280px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Appointments Card -->
+    <div class="col-xl-5">
+        <div class="card h-100">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span class="fw-700">Recent Appointments</span>
+                <a href="@Url.Action("Index","Appointment")" class="text-primary fw-600 fs-7">View All</a>
+            </div>
+            <div class="card-body p-0">
+                @{
+                    var recent = ViewBag.RecentAppointments as List<HospitalManagement.Web.Models.Appointment>;
+                }
+                <div class="list-group list-group-flush" id="recentAppointmentsContainer">
+                    @if (recent == null || !recent.Any())
+                    {
+                        <div class="p-4 text-center text-muted">
+                            <i class="bi bi-calendar-x fs-2 text-slate-300"></i>
+                            <p class="mt-2 fs-7 mb-0">No recent appointments recorded.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        foreach (var apt in recent)
+                        {
+                            <div class="list-group-item d-flex align-items-center justify-content-between p-3 border-0">
+                                <span class="fw-700 text-slate-700 fs-7">@apt.AppointmentDate.ToString("hh:mm tt")</span>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="user-avatar-sm" style="width:32px;height:32px;font-size:0.75rem">
+                                        @(apt.Patient?.Name?.Substring(0,1).ToUpper() ?? "?")
+                                    </div>
+                                    <span class="fw-700 fs-7 text-dark">@(apt.Patient?.Name ?? "—")</span>
+                                </div>
+                                <span class="text-muted fs-7">@(apt.Doctor?.Name ?? "—")</span>
+                                @{
+                                    var pCls = apt.Status switch {
+                                        "Completed" => "status-completed",
+                                        "Cancelled" => "status-cancelled",
+                                        _ => "status-scheduled"
+                                    };
+                                }
+                                <span class="status-pill @pCls">@apt.Status</span>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reference Image Bottom Row: Department Overview + System Notifications + Quick Actions -->
+<div class="row g-4">
+    <!-- Department Overview Donut Chart -->
+    <div class="col-xl-4">
+        <div class="card h-100">
+            <div class="card-header fw-700">Department Overview</div>
+            <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                <div id="departmentDonutChart" style="min-height: 230px; width: 100%;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Real-time System Notifications -->
+    <div class="col-xl-4">
+        <div class="card h-100">
+            <div class="card-header fw-700">System Notifications</div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    @{
+                        var notifications = ViewBag.Notifications as IEnumerable<dynamic>;
+                    }
+                    @if (notifications != null && notifications.Any())
+                    {
+                        foreach (var n in notifications)
+                        {
+                            <div class="list-group-item p-3 border-0 d-flex align-items-center gap-3">
+                                <div class="p-2 rounded-circle bg-light @n.ColorClass"><i class="bi @n.Icon"></i></div>
+                                <div class="flex-grow-1">
+                                    <div class="fs-7 fw-600 text-dark">@n.Message</div>
+                                </div>
+                                <span class="text-muted fs-8">@n.TimeAgo</span>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions Buttons Grid -->
+    <div class="col-xl-4">
+        <div class="card h-100">
+            <div class="card-header fw-700">Quick Actions</div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <a href="@Url.Action("Create","Patient")" class="btn btn-outline-secondary w-100 py-3 d-flex flex-column align-items-center gap-2 text-dark">
+                            <i class="bi bi-person-plus text-primary fs-4"></i>
+                            <span class="fs-7 fw-700">Add New Patient</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="@Url.Action("Create","Appointment")" class="btn btn-outline-secondary w-100 py-3 d-flex flex-column align-items-center gap-2 text-dark">
+                            <i class="bi bi-calendar-plus text-info fs-4"></i>
+                            <span class="fs-7 fw-700">Schedule Appointment</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="@Url.Action("Create","Doctor")" class="btn btn-outline-secondary w-100 py-3 d-flex flex-column align-items-center gap-2 text-dark">
+                            <i class="bi bi-person-badge text-purple fs-4" style="color:var(--secondary)"></i>
+                            <span class="fs-7 fw-700">Add New Doctor</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="#" class="btn btn-outline-secondary w-100 py-3 d-flex flex-column align-items-center gap-2 text-dark">
+                            <i class="bi bi-file-earmark-text text-accent fs-4" style="color:var(--accent)"></i>
+                            <span class="fs-7 fw-700">Generate Report</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Real Database Data passed from Controller
+            var weeklyScheduled = @Html.Raw(Json.Serialize(ViewBag.WeeklyScheduled));
+            var weeklyCompleted = @Html.Raw(Json.Serialize(ViewBag.WeeklyCompleted));
+            var weeklyCancelled = @Html.Raw(Json.Serialize(ViewBag.WeeklyCancelled));
+            var specLabels      = @Html.Raw(Json.Serialize(ViewBag.SpecializationLabels));
+            var specCounts      = @Html.Raw(Json.Serialize(ViewBag.SpecializationCounts));
+            var totalDepts      = @ViewBag.TotalDepartments;
+
+            // 1. Appointments Overview Line Chart
+            var optionsLine = {
+                chart: {
+                    type: 'line',
+                    height: 280,
+                    toolbar: { show: false },
+                    background: 'transparent'
+                },
+                colors: ['#4F6FFF', '#37D5C8', '#EF4444'],
+                stroke: { curve: 'smooth', width: 3 },
+                dataLabels: { enabled: false },
+                series: [
+                    { name: 'Scheduled', data: weeklyScheduled },
+                    { name: 'Completed', data: weeklyCompleted },
+                    { name: 'Cancelled', data: weeklyCancelled }
+                ],
+                xaxis: {
+                    categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    axisBorder: { show: false },
+                    axisTicks: { show: false },
+                    labels: { style: { colors: '#64748B', fontFamily: 'Inter' } }
+                },
+                yaxis: {
+                    labels: { style: { colors: '#64748B', fontFamily: 'Inter' } }
+                },
+                grid: {
+                    borderColor: 'rgba(226, 232, 240, 0.7)',
+                    strokeDashArray: 4
+                },
+                legend: {
+                    position: 'top',
+                    horizontalAlign: 'left',
+                    labels: { colors: '#1E293B' }
+                }
+            };
+            var chartLine = new ApexCharts(document.querySelector("#appointmentsOverviewChart"), optionsLine);
+            chartLine.render();
+
+            // 2. Department Overview Donut Chart
+            var optionsDonut = {
+                chart: {
+                    type: 'donut',
+                    height: 230,
+                    background: 'transparent'
+                },
+                colors: ['#4F6FFF', '#7C6CFF', '#37D5C8', '#F59E0B', '#22C55E', '#94A3B8'],
+                series: specCounts,
+                labels: specLabels,
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '70%',
+                            labels: {
+                                show: true,
+                                total: {
+                                    show: true,
+                                    label: 'Departments',
+                                    formatter: function () { return totalDepts.toString(); }
+                                }
+                            }
+                        }
+                    }
+                },
+                legend: {
+                    position: 'right',
+                    labels: { colors: '#1E293B' }
+                },
+                dataLabels: { enabled: false }
+            };
+            var chartDonut = new ApexCharts(document.querySelector("#departmentDonutChart"), optionsDonut);
+            chartDonut.render();
+
+            // 3. Real-Time Auto-Refresh Polling (Every 10 seconds)
+            setInterval(function () {
+                fetch('/Home/GetDashboardMetrics')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Update KPI numbers
+                        if (data.totalPatients !== undefined) document.getElementById('kpiTotalPatients').innerText = data.totalPatients;
+                        if (data.totalDoctors !== undefined) document.getElementById('kpiTotalDoctors').innerText = data.totalDoctors;
+                        if (data.todayAppointments !== undefined) document.getElementById('kpiTodayAppointments').innerText = data.todayAppointments;
+                        if (data.completedToday !== undefined) document.getElementById('kpiCompletedToday').innerText = data.completedToday;
+
+                        // Update dynamic trend texts
+                        if (data.patientTrendText) document.getElementById('kpiPatientTrend').innerHTML = '<i class="bi bi-arrow-up-right"></i>' + data.patientTrendText;
+                        if (data.doctorTrendText) document.getElementById('kpiDoctorTrend').innerHTML = '<i class="bi bi-arrow-up-right"></i>' + data.doctorTrendText;
+                        if (data.todayAppointmentsTrendText) document.getElementById('kpiTodayAppointmentsTrend').innerHTML = '<i class="bi bi-arrow-up-right"></i>' + data.todayAppointmentsTrendText;
+                        if (data.completedTodayTrendText) document.getElementById('kpiCompletedTodayTrend').innerHTML = '<i class="bi bi-arrow-up-right"></i>' + data.completedTodayTrendText;
+
+                        // Update Line Chart Series
+                        if (data.weeklyScheduled && data.weeklyCompleted && data.weeklyCancelled) {
+                            chartLine.updateSeries([
+                                { name: 'Scheduled', data: data.weeklyScheduled },
+                                { name: 'Completed', data: data.weeklyCompleted },
+                                { name: 'Cancelled', data: data.weeklyCancelled }
+                            ]);
+                        }
+
+                        // Update Donut Chart Series
+                        if (data.specCounts && data.specLabels) {
+                            chartDonut.updateOptions({
+                                labels: data.specLabels
+                            });
+                            chartDonut.updateSeries(data.specCounts);
+                        }
+                    })
+                    .catch(err => console.error("Live metrics update error:", err));
+            }, 10000);
+        });
+    </script>
+}

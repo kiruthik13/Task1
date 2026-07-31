@@ -1,0 +1,124 @@
+@model HospitalManagement.Web.DTOs.DoctorDTO
+@{
+    ViewData["Title"] = "My Doctor Profile";
+}
+
+<!-- Header -->
+<div class="page-header mb-4">
+    <h1 class="page-title"><i class="bi bi-person-badge-fill me-2 text-primary"></i>My Doctor Profile</h1>
+    <p class="page-subtitle">Manage your personal medical profile, specialization, and availability status</p>
+</div>
+
+<div class="row g-4">
+    <!-- Doctor Profile Summary Card (Reference Image Style) -->
+    <div class="col-xl-4">
+        <div class="card h-100">
+            <div class="card-body text-center p-4">
+                <div class="user-avatar-sm mx-auto mb-3" style="width:80px;height:80px;font-size:2.2rem">
+                    @(Model.Name?.Substring(0, 1).ToUpper() ?? "D")
+                </div>
+                <h4 class="fw-800 text-dark mb-1">Dr. @Model.Name</h4>
+                <p class="text-primary fw-600 mb-2">@Model.Specialization</p>
+                <span class="status-pill @(Model.IsAvailable ? "status-completed" : "status-cancelled") mb-4">
+                    <i class="bi bi-circle-fill me-1 fs-8"></i>@(Model.IsAvailable ? "Active & Available" : "Currently Unavailable")
+                </span>
+
+                <div class="border-top pt-3 text-start">
+                    <div class="mb-2 text-secondary fs-7">
+                        <i class="bi bi-envelope me-2 text-primary"></i>@Model.Email
+                    </div>
+                    <div class="mb-2 text-secondary fs-7">
+                        <i class="bi bi-telephone me-2 text-info"></i>@(Model.Phone ?? "Not provided")
+                    </div>
+                    <div class="mb-2 text-secondary fs-7">
+                        <i class="bi bi-mortarboard me-2 text-warning"></i>@(Model.Qualification ?? "MD, General Medicine")
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Doctor Profile Form Card -->
+    <div class="col-xl-8">
+        <div class="card">
+            <div class="card-header fw-700">Edit Profile Details</div>
+            <div class="card-body">
+                <form asp-action="MyProfile" method="post">
+                    @Html.AntiForgeryToken()
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger mb-4 py-2 px-3 fs-7" style="border-radius:12px">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            @Html.ValidationSummary(true, "", new { @class = "mb-0" })
+                        </div>
+                    }
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Name" class="form-label">Full Name</label>
+                            <input asp-for="Name" class="form-control" placeholder="Dr. Sarah Johnson" />
+                            <span asp-validation-for="Name" class="text-danger fs-8"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label">Email Address</label>
+                            <input asp-for="Email" class="form-control" readonly style="background:rgba(241,245,249,0.7)" />
+                            <span asp-validation-for="Email" class="text-danger fs-8"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Specialization" class="form-label">Specialization</label>
+                            <select asp-for="Specialization" class="form-select">
+                                <option value="Cardiology">Cardiology</option>
+                                <option value="Neurology">Neurology</option>
+                                <option value="Orthopedics">Orthopedics</option>
+                                <option value="Pediatrics">Pediatrics</option>
+                                <option value="General Medicine">General Medicine</option>
+                                <option value="Dermatology">Dermatology</option>
+                            </select>
+                            <span asp-validation-for="Specialization" class="text-danger fs-8"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Phone" class="form-label">Contact Phone</label>
+                            <input asp-for="Phone" class="form-control" placeholder="+1-555-0101" />
+                            <span asp-validation-for="Phone" class="text-danger fs-8"></span>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label asp-for="Qualification" class="form-label">Qualification / Degrees</label>
+                            <input asp-for="Qualification" class="form-control" placeholder="MD, FACC, Board Certified" />
+                            <span asp-validation-for="Qualification" class="text-danger fs-8"></span>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label asp-for="Biography" class="form-label">Biography & Clinical Experience</label>
+                            <textarea asp-for="Biography" class="form-control" rows="3" placeholder="Brief summary of medical experience..."></textarea>
+                            <span asp-validation-for="Biography" class="text-danger fs-8"></span>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-check form-switch mt-2">
+                                <input asp-for="IsAvailable" class="form-check-input" type="checkbox" id="availSwitch" />
+                                <label class="form-check-label fw-600 text-slate-700" for="availSwitch">
+                                    Available for Appointments & Consultations
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-4 text-end">
+                            <button type="submit" class="btn btn-primary px-4 py-2">
+                                <i class="bi bi-check-lg me-1"></i>Save Profile Changes
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

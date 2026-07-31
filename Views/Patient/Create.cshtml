@@ -1,0 +1,81 @@
+@model HospitalManagement.Web.DTOs.PatientDTO
+@{
+    ViewData["Title"] = "Register Patient";
+}
+
+<div class="page-header">
+    <h1 class="page-title"><i class="bi bi-person-add me-2 text-primary-custom"></i>Register Patient</h1>
+    <p class="page-subtitle">Enter patient information to create a new record.</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-xl-8">
+        <div class="card">
+            <div class="card-header">Patient Information</div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger py-2 mb-4" style="font-size:.85rem">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            @Html.ValidationSummary(true, "", new { @class = "mb-0" })
+                        </div>
+                    }
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Name" class="form-label">Full Name *</label>
+                            <input asp-for="Name" class="form-control" placeholder="Jane Doe" />
+                            <span asp-validation-for="Name" class="text-danger" style="font-size:.75rem"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label">Email Address *</label>
+                            <input asp-for="Email" class="form-control" placeholder="patient@email.com" />
+                            <span asp-validation-for="Email" class="text-danger" style="font-size:.75rem"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="DateOfBirth" class="form-label">Date of Birth</label>
+                            <input asp-for="DateOfBirth" class="form-control" type="date" />
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Gender" class="form-label">Gender</label>
+                            <select asp-for="Gender" class="form-select">
+                                <option value="">Select…</option>
+                                <option>Male</option>
+                                <option>Female</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Phone" class="form-label">Phone</label>
+                            <input asp-for="Phone" class="form-control" placeholder="+1-555-1000" />
+                            <span asp-validation-for="Phone" class="text-danger" style="font-size:.75rem"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Address" class="form-label">Address</label>
+                            <input asp-for="Address" class="form-control" placeholder="123 Main St, City, State" />
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="MedicalHistory" class="form-label">Medical History</label>
+                            <textarea asp-for="MedicalHistory" class="form-control" rows="3" placeholder="Allergies, chronic conditions, previous surgeries…"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-2"></i>Register Patient
+                        </button>
+                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

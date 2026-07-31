@@ -1,0 +1,87 @@
+@model HospitalManagement.Web.DTOs.PatientDTO
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="page-header">
+    <h1 class="page-title"><i class="bi bi-person-vcard-fill me-2 text-primary-custom"></i>My Profile</h1>
+    <p class="page-subtitle">Manage your personal and medical information.</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-xl-8">
+        <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span><i class="bi bi-person-gear me-2"></i>Personal Details</span>
+                <span class="badge-pill badge-info"><i class="bi bi-shield-check me-1"></i>Patient Profile</span>
+            </div>
+            <div class="card-body">
+                <form asp-action="MyProfile" method="post">
+                    @Html.AntiForgeryToken()
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger py-2 mb-4" style="font-size:.85rem">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            @Html.ValidationSummary(true, "", new { @class = "mb-0" })
+                        </div>
+                    }
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Name" class="form-label">Full Name *</label>
+                            <input asp-for="Name" class="form-control" placeholder="Enter your full name" />
+                            <span asp-validation-for="Name" class="text-danger" style="font-size:.75rem"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label">Email Address *</label>
+                            <input asp-for="Email" class="form-control" readonly style="background:var(--bg-body)" />
+                            <span class="form-text">Email address cannot be changed.</span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="DateOfBirth" class="form-label">Date of Birth</label>
+                            <input asp-for="DateOfBirth" class="form-control" type="date" />
+                            <span asp-validation-for="DateOfBirth" class="text-danger" style="font-size:.75rem"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Gender" class="form-label">Gender</label>
+                            <select asp-for="Gender" class="form-select">
+                                <option value="">Select Gender…</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Phone" class="form-label">Phone Number</label>
+                            <input asp-for="Phone" class="form-control" placeholder="+1-555-0199" />
+                            <span asp-validation-for="Phone" class="text-danger" style="font-size:.75rem"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Address" class="form-label">Residential Address</label>
+                            <input asp-for="Address" class="form-control" placeholder="Street Address, City, State, ZIP" />
+                            <span asp-validation-for="Address" class="text-danger" style="font-size:.75rem"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="MedicalHistory" class="form-label">Medical History / Allergies / Notes</label>
+                            <textarea asp-for="MedicalHistory" class="form-control" rows="4" placeholder="Any known medical conditions, allergies, or previous surgeries…"></textarea>
+                            <span asp-validation-for="MedicalHistory" class="text-danger" style="font-size:.75rem"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save me-2"></i>Save Profile
+                        </button>
+                        <a href="@Url.Action("Index","Home")" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

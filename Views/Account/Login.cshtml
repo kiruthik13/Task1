@@ -1,0 +1,101 @@
+@model HospitalManagement.Web.DTOs.LoginDTO
+@{
+    ViewData["Title"] = "Login";
+    Layout = "_Layout";
+}
+
+<div class="auth-card">
+    <!-- Brand Logo Icon -->
+    <div class="auth-logo">
+        <i class="bi bi-heart-pulse-fill"></i>
+    </div>
+    
+    <h1 class="auth-title">Welcome Back!</h1>
+    <p class="auth-subtitle">Sign in to your MediCore HMS account</p>
+
+    <form asp-action="Login" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger mb-4 py-2.5 px-3 fs-7" style="border-radius:14px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:var(--danger)">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                @Html.ValidationSummary(true, "", new { @class = "mb-0" })
+            </div>
+        }
+
+        <!-- Email Field -->
+        <div class="mb-3.5">
+            <label asp-for="Email" class="form-label">Email Address</label>
+            <div class="input-icon">
+                <i class="bi bi-envelope-fill icon"></i>
+                <input asp-for="Email" class="form-control" placeholder="admin@hospital.com" autocomplete="email" id="loginEmail" />
+            </div>
+            <span asp-validation-for="Email" class="text-danger fs-8"></span>
+        </div>
+
+        <!-- Password Field -->
+        <div class="mb-3.5">
+            <label asp-for="Password" class="form-label">Password</label>
+            <div class="input-icon">
+                <i class="bi bi-lock-fill icon"></i>
+                <input asp-for="Password" class="form-control" placeholder="••••••••" id="loginPassword" />
+                <button type="button" class="password-toggle-btn" onclick="togglePassword('loginPassword', this)">
+                    <i class="bi bi-eye"></i>
+                </button>
+            </div>
+            <span asp-validation-for="Password" class="text-danger fs-8"></span>
+        </div>
+
+        <!-- Remember Me & Forgot Password -->
+        <div class="d-flex justify-content-between align-items-center mb-4 mt-2">
+            <div class="form-check mb-0">
+                <input asp-for="RememberMe" class="form-check-input" id="rememberMe" style="border-radius:6px;cursor:pointer" />
+                <label class="form-check-label fs-7 text-secondary fw-500" for="rememberMe" style="cursor:pointer">Remember me</label>
+            </div>
+            <a href="#" class="fs-7 text-primary fw-600">Forgot Password?</a>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn-auth mb-4" id="loginBtn">
+            <i class="bi bi-box-arrow-in-right me-1 fs-5"></i>
+            <span>Sign In</span>
+        </button>
+
+        <!-- Register Link -->
+        <p class="text-center mb-0 fs-7 text-secondary">
+            Don't have an account?
+            <a asp-action="Register" class="text-primary fw-700 ms-1">Register here</a>
+        </p>
+    </form>
+
+    <!-- Demo Credentials Footer Box -->
+    <div class="mt-4 p-3 rounded-4" style="background:rgba(241,245,249,0.8);border:1px solid rgba(226,232,240,0.9)">
+        <div class="d-flex align-items-center justify-content-between mb-1">
+            <span class="text-muted fs-8 fw-800 uppercase" style="letter-spacing:0.08em">DEMO CREDENTIALS</span>
+            <span class="badge bg-primary-soft text-primary fs-8 px-2 py-0.5 rounded-pill">Admin</span>
+        </div>
+        <div class="fs-7 text-slate-700 font-monospace">
+            <div><i class="bi bi-envelope-at me-2 text-primary"></i>admin@hospital.com</div>
+            <div><i class="bi bi-key me-2 text-primary"></i>Admin@123</div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function togglePassword(id, btn) {
+            const input = document.getElementById(id);
+            const icon  = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'bi bi-eye-slash-fill';
+            } else {
+                input.type = 'password';
+                icon.className = 'bi bi-eye';
+            }
+        }
+    </script>
+}

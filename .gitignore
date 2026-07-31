@@ -1,0 +1,31 @@
+## Ignore Visual Studio / .NET build outputs
+[Bb]in/
+[Oo]bj/
+[Lld]b/
+[Rrs]esources/
+
+## User-specific files
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.suo
+
+## IDE / Editor directories
+.vs/
+.vscode/
+.idea/
+*.swp
+*~
+
+## Publish / Deployment outputs
+publish/
+*.azurePubxml
+*.pubxml
+
+## Log files
+*.log
+
+## Temporary / OS files
+.DS_Store
+Thumbs.db

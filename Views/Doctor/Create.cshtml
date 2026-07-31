@@ -1,0 +1,95 @@
+@model HospitalManagement.Web.DTOs.DoctorDTO
+@{
+    ViewData["Title"] = "Add Doctor";
+}
+
+<div class="page-header">
+    <h1 class="page-title"><i class="bi bi-person-plus-fill me-2 text-primary-custom"></i>Add New Doctor</h1>
+    <p class="page-subtitle">Fill in the details below to register a new doctor.</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-xl-8">
+        <div class="card">
+            <div class="card-header">Doctor Information</div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger py-2 mb-4" style="font-size:.85rem">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            @Html.ValidationSummary(true, "", new { @class = "mb-0" })
+                        </div>
+                    }
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Name" class="form-label">Full Name *</label>
+                            <input asp-for="Name" class="form-control" placeholder="Dr. John Smith" />
+                            <span asp-validation-for="Name" class="text-danger" style="font-size:.75rem"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label">Email Address *</label>
+                            <input asp-for="Email" class="form-control" placeholder="doctor@hospital.com" />
+                            <span asp-validation-for="Email" class="text-danger" style="font-size:.75rem"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Specialization" class="form-label">Specialization *</label>
+                            <select asp-for="Specialization" class="form-select" id="specializationSelect">
+                                <option value="">Select Specialization…</option>
+                                <option>Cardiology</option>
+                                <option>Neurology</option>
+                                <option>Pediatrics</option>
+                                <option>Orthopedics</option>
+                                <option>Dermatology</option>
+                                <option>General Medicine</option>
+                                <option>Surgery</option>
+                                <option>Gynecology</option>
+                                <option>Radiology</option>
+                                <option>Psychiatry</option>
+                                <option>Other</option>
+                            </select>
+                            <span asp-validation-for="Specialization" class="text-danger" style="font-size:.75rem"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Phone" class="form-label">Phone Number</label>
+                            <input asp-for="Phone" class="form-control" placeholder="+1-555-0100" />
+                            <span asp-validation-for="Phone" class="text-danger" style="font-size:.75rem"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Qualification" class="form-label">Qualification</label>
+                            <input asp-for="Qualification" class="form-control" placeholder="MD, FACC" />
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mt-4 pt-2">
+                                <div class="form-check form-switch">
+                                    <input asp-for="IsAvailable" class="form-check-input" type="checkbox" role="switch" id="isAvailable" checked />
+                                    <label class="form-check-label fw-500" for="isAvailable">Available for Appointments</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Biography" class="form-label">Biography</label>
+                            <textarea asp-for="Biography" class="form-control" rows="3" placeholder="Brief professional biography…"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-2"></i>Save Doctor
+                        </button>
+                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,36 @@
+@model HospitalManagement.Web.Models.Appointment
+@{
+    ViewData["Title"] = "Delete Appointment";
+}
+
+<div class="page-header">
+    <h1 class="page-title text-danger"><i class="bi bi-trash3-fill me-2"></i>Delete Appointment</h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card border-danger">
+            <div class="card-header text-danger border-danger" style="background:rgba(239,68,68,.05)">
+                <i class="bi bi-exclamation-triangle me-2"></i>Confirm Deletion
+            </div>
+            <div class="card-body text-center py-4">
+                <i class="bi bi-calendar-x text-danger" style="font-size:2.5rem"></i>
+                <h5 class="mt-3 fw-700">Appointment #@Model.Id</h5>
+                <p class="text-muted mb-1">@(Model.Patient?.Name ?? "—") ↔ @(Model.Doctor?.Name ?? "—")</p>
+                <p class="text-muted" style="font-size:.85rem"><i class="bi bi-calendar3 me-1"></i>@Model.AppointmentDate.ToString("MMM dd, yyyy hh:mm tt")</p>
+
+                <div class="alert mt-3 py-2" style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:.5rem;font-size:.85rem;color:var(--danger)">
+                    <i class="bi bi-exclamation-circle me-1"></i>Associated bills will also be removed.
+                </div>
+
+                <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="mt-4">
+                    @Html.AntiForgeryToken()
+                    <div class="d-flex gap-3 justify-content-center">
+                        <button type="submit" class="btn btn-danger"><i class="bi bi-trash me-2"></i>Yes, Delete</button>
+                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

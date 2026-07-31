@@ -1,0 +1,105 @@
+@using System.Security.Claims
+
+@{
+    var role    = User.FindFirst(ClaimTypes.Role)?.Value ?? "Patient";
+    var current = ViewContext.RouteData.Values["controller"]?.ToString()?.ToLower() ?? "";
+}
+
+<aside class="sidebar" id="sidebar">
+    <!-- Reference Image Logo Branding Header -->
+    <div class="sidebar-brand">
+        <div class="brand-icon">
+            <i class="bi bi-heart-pulse-fill"></i>
+        </div>
+        <div class="brand-text">
+            <span class="brand-name">MediCore</span>
+            <span class="brand-sub">HOSPITAL MANAGEMENT SYSTEM</span>
+        </div>
+    </div>
+
+    <!-- Reference Image Sidebar Menu -->
+    <nav class="sidebar-nav">
+        <a href="@Url.Action("Index","Home")" class="nav-item @(current == "home" ? "active" : "")">
+            <i class="bi bi-grid-fill"></i>
+            <span>Dashboard</span>
+            <i class="bi bi-chevron-right chevron-icon"></i>
+        </a>
+
+        @{
+            var myProfileController = role == "Doctor" ? "Doctor" : "Patient";
+        }
+        <a href="@Url.Action("MyProfile", myProfileController)" class="nav-item">
+            <i class="bi bi-person-circle"></i>
+            <span>My Profile</span>
+            <i class="bi bi-chevron-right chevron-icon"></i>
+        </a>
+
+        @if (role == "Admin" || role == "Doctor")
+        {
+            <a href="@Url.Action("Index","Patient")" class="nav-item @(current == "patient" ? "active" : "")">
+                <i class="bi bi-people-fill"></i>
+                <span>Patients</span>
+                <i class="bi bi-chevron-right chevron-icon"></i>
+            </a>
+
+            <a href="@Url.Action("Index","Doctor")" class="nav-item @(current == "doctor" ? "active" : "")">
+                <i class="bi bi-person-badge-fill"></i>
+                <span>Doctors</span>
+                <i class="bi bi-chevron-right chevron-icon"></i>
+            </a>
+        }
+
+        <a href="@Url.Action("Index","Appointment")" class="nav-item @(current == "appointment" ? "active" : "")">
+            <i class="bi bi-calendar2-check-fill"></i>
+            <span>Appointments</span>
+            <i class="bi bi-chevron-right chevron-icon"></i>
+        </a>
+
+        <a href="#" class="nav-item">
+            <i class="bi bi-journal-medical"></i>
+            <span>Medical Records</span>
+            <i class="bi bi-chevron-right chevron-icon"></i>
+        </a>
+
+        @if (role == "Admin")
+        {
+            <a href="#" class="nav-item">
+                <i class="bi bi-people"></i>
+                <span>Users & Roles</span>
+                <i class="bi bi-chevron-right chevron-icon"></i>
+            </a>
+        }
+
+        <a href="#" class="nav-item">
+            <i class="bi bi-bar-chart-fill"></i>
+            <span>Reports & Analytics</span>
+            <i class="bi bi-chevron-right chevron-icon"></i>
+        </a>
+
+        <a href="#" class="nav-item">
+            <i class="bi bi-bell-fill"></i>
+            <span>Notifications</span>
+            <i class="bi bi-chevron-right chevron-icon"></i>
+        </a>
+
+        <a href="#" class="nav-item">
+            <i class="bi bi-gear-fill"></i>
+            <span>Settings</span>
+            <i class="bi bi-chevron-right chevron-icon"></i>
+        </a>
+    </nav>
+
+    <!-- Reference Image User Profile Footer -->
+    <div class="sidebar-footer">
+        <div class="sidebar-user">
+            <div class="user-avatar-sm">
+                <i class="bi bi-person-fill"></i>
+                <div class="online-indicator"></div>
+            </div>
+            <div class="sidebar-user-info">
+                <div class="sidebar-user-name">@(role == "Doctor" ? "Dr. " : "")@User.Identity?.Name</div>
+                <div class="sidebar-user-role">@(role == "Admin" ? "System Administrator" : role == "Doctor" ? "Medical Specialist" : "Patient")</div>
+            </div>
+        </div>
+    </div>
+</aside>

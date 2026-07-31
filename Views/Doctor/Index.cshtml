@@ -1,0 +1,120 @@
+@model IEnumerable<HospitalManagement.Web.Models.Doctor>
+@{
+    ViewData["Title"] = "Doctors";
+}
+
+<!-- Reference Image Header -->
+<div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+        <h1 class="page-title text-slate-800">Doctors</h1>
+        <p class="page-subtitle">Manage hospital doctors and their profiles</p>
+    </div>
+    @if (User.IsInRole("Admin"))
+    {
+        <a href="@Url.Action("Create")" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>+ Add Doctor
+        </a>
+    }
+</div>
+
+<!-- Reference Image Search & Filter Glass Box -->
+<div class="card mb-4">
+    <div class="card-body py-3">
+        <form method="get" class="d-flex gap-3 align-items-center flex-wrap">
+            <div class="nav-search-box flex-grow-1" style="max-width:380px">
+                <i class="bi bi-search search-icon"></i>
+                <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="Search doctors..." />
+            </div>
+            <select class="form-select form-select-sm py-2 px-3" style="width:auto;border-radius:16px">
+                <option>All Specializations</option>
+                <option>Cardiology</option>
+                <option>Neurology</option>
+                <option>Orthopedics</option>
+                <option>Pediatrics</option>
+            </select>
+            <button type="submit" class="btn btn-primary btn-sm px-4">Filter</button>
+            @if (!string.IsNullOrEmpty(ViewBag.Search as string))
+            {
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary btn-sm">Clear</a>
+            }
+        </form>
+    </div>
+</div>
+
+<!-- Reference Image Doctor Table Card -->
+<div class="card">
+    <div class="card-body p-0">
+        @if (!Model.Any())
+        {
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-person-badge" style="font-size:3rem;opacity:.3"></i>
+                <p class="mt-3">No doctors found.</p>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a href="@Url.Action("Create")" class="btn btn-primary btn-sm">+ Add First Doctor</a>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Doctor</th>
+                            <th>Specialization</th>
+                            <th>Contact</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var d in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="user-avatar-sm" style="background:var(--primary-gradient)">
+                                            @d.Name.Substring(0,1).ToUpper()
+                                        </div>
+                                        <div>
+                                            <div class="fw-700 text-dark">@d.Name</div>
+                                            <div class="text-muted fs-8">@d.Email</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="status-pill status-scheduled">@d.Specialization</span>
+                                </td>
+                                <td class="text-slate-600 fs-7">
+                                    @(d.Phone ?? "—")
+                                </td>
+                                <td>
+                                    @if (d.IsAvailable)
+                                    {
+                                        <span class="status-pill status-completed">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-pill status-cancelled">Inactive</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <a href="@Url.Action("Details", new { id = d.Id })" class="btn btn-sm btn-outline-primary py-1 px-3">View</a>
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            <a href="@Url.Action("Edit", new { id = d.Id })" class="text-secondary fs-7"><i class="bi bi-pencil"></i></a>
+                                            <a href="@Url.Action("Delete", new { id = d.Id })" class="text-danger fs-7 me-2"><i class="bi bi-trash"></i></a>
+                                        }
+                                        <i class="bi bi-chevron-right text-muted fs-8"></i>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
