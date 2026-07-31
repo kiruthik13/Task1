@@ -6,6 +6,7 @@ using HospitalManagement.Web.Repositories;
 using HospitalManagement.Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -82,7 +83,10 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-// ─── HTTP Context ──────────────────────────────────────────────────────────
+// ─── Data Protection & HTTP Context ────────────────────────────────────────
+builder.Services.AddDataProtection()
+    .SetApplicationName("HospitalManagement");
+
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
@@ -102,7 +106,11 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsProduction())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseSession();
 app.UseRouting();
 app.UseAuthentication();
