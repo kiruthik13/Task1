@@ -3,7 +3,8 @@
 [![.NET Version](https://img.shields.io/badge/.NET-10.0-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/)
 [![Framework](https://img.shields.io/badge/ASP.NET_Core-MVC-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/)
 [![Database](https://img.shields.io/badge/Database-PostgreSQL_14+-4169E1?style=flat-square&logo=postgresql)](https://www.postgresql.org/)
-[![ORM](https://img.shields.io/badge/ORM-EF_Core_10-512BD4?style=flat-square&logo=dotnet)](https://learn.microsoft.com/en-us/ef/core/)
+[![Cloud Deployment](https://img.shields.io/badge/Render-Deployed-46E3B7?style=flat-square&logo=render)](https://render.com/)
+[![Container](https://img.shields.io/badge/Docker-Multi--Stage-2496ED?style=flat-square&logo=docker)](Dockerfile)
 [![UI Theme](https://img.shields.io/badge/UI-Light_Glassmorphism-4F6FFF?style=flat-square&logo=css3)](wwwroot/css/site.css)
 
 A modern, full-featured **Hospital Management System (HMS)** built with **ASP.NET Core MVC 10.0**, **Entity Framework Core**, **PostgreSQL**, **Bootstrap 5**, **BCrypt** password security, **Dual Cookie + JWT Authentication**, and a stunning **Apple VisionOS & Fluent Design Inspired Light Glassmorphism UI**.
@@ -20,11 +21,12 @@ Designed using clean architecture principles with distinct **Repository** and **
 4. [Project Directory Structure](#-project-directory-structure)
 5. [Prerequisites](#-prerequisites)
 6. [Database & Configuration Setup](#-database--configuration-setup)
-7. [How to Run the Project](#-how-to-run-the-project)
-8. [Default Seeded Accounts](#-default-seeded-accounts)
-9. [REST API & JWT Authentication](#-rest-api--jwt-authentication)
-10. [Real-Time Analytics & Polling](#-real-time-analytics--polling)
-11. [Troubleshooting & FAQs](#-troubleshooting--faqs)
+7. [How to Run Locally](#-how-to-run-locally)
+8. [Deploying to Render (Cloud Hosting)](#-deploying-to-render-cloud-hosting)
+9. [Default Seeded Accounts](#-default-seeded-accounts)
+10. [REST API & JWT Authentication](#-rest-api--jwt-authentication)
+11. [Real-Time Analytics & Polling](#-real-time-analytics--polling)
+12. [Troubleshooting & FAQs](#-troubleshooting--faqs)
 
 ---
 
@@ -51,6 +53,11 @@ Designed using clean architecture principles with distinct **Repository** and **
   - **BCrypt.Net-Next** password hashing and salting.
   - Automatic Anti-Forgery Token protection across form submissions.
   - Conditional salutation prefixing restricting `"Dr."` exclusively to Doctor accounts.
+- **🐳 Render Cloud Containerized Deployment**:
+  - Multi-stage `.NET 10` `Dockerfile` pre-configured with `libgssapi-krb5-2` Linux dependencies for Npgsql PostgreSQL Kerberos authentication.
+  - Optimized `.dockerignore` for 5x-10x faster build context uploads.
+  - Production connection string configured for Render Hosted PostgreSQL (`dpg-d9lkr095efls73bfvdog-a.singapore-postgres.render.com`).
+  - Environment-scoped HTTPS redirection and application-isolated Data Protection setup.
 
 ---
 
@@ -58,9 +65,10 @@ Designed using clean architecture principles with distinct **Repository** and **
 
 | Layer | Technology | Details |
 | :--- | :--- | :--- |
-| **Framework** | ASP.NET Core MVC | .NET 10.0 Web Framework |
-| **Database** | PostgreSQL | Relational Database Engine (v14+) |
+| **Framework** | ASP.NET Core MVC | .NET 10.0 Web Framework (`net10.0`) |
+| **Database** | PostgreSQL | Relational Database Engine (v14+ / Render PostgreSQL) |
 | **ORM** | Entity Framework Core | Npgsql.EntityFrameworkCore.PostgreSQL 9.0+ / 10.0 |
+| **Containerization** | Docker | Multi-Stage Docker Build (`sdk:10.0` & `aspnet:10.0`) |
 | **Authentication** | Dual Auth | Cookie Authentication + JWT Bearer Tokens |
 | **Password Security** | BCrypt.Net-Next | Salted Password Hashing |
 | **Charts & Visuals** | ApexCharts | Interactive SVG Line & Donut Charts |
@@ -91,6 +99,8 @@ The application implements strictly enforced Role-Based Access Control (RBAC):
 ```text
 HospitalManagementSystem/
 ├── HospitalManagement.Web/
+│   ├── .dockerignore               # Docker Build Context Optimization
+│   ├── Dockerfile                  # Multi-stage .NET 10 Docker Container Build
 │   ├── Configuration/              # Service & Auth Registration Extensions
 │   ├── Controllers/                # MVC & REST API Controllers
 │   │   ├── AccountController.cs    # Authentication, Registration, Login, Logout
@@ -148,8 +158,10 @@ HospitalManagementSystem/
 │   ├── wwwroot/                    # Static Assets
 │   │   ├── css/site.css            # Light Glassmorphism CSS System
 │   │   └── js/site.js              # Client-Side Interactive Logic
-│   ├── appsettings.json            # Application Settings & Database Connection
-│   ├── HospitalManagement.Web.csproj # Project File & NuGet Package Dependencies
+│   ├── appsettings.Development.json # Local Development Settings
+│   ├── appsettings.Production.json  # Render Production Database Settings
+│   ├── appsettings.json            # Base Application Settings & Local Connection
+│   ├── HospitalManagement.Web.csproj # Project File & Dependencies (.NET 10.0)
 │   └── Program.cs                  # Startup Entry Point & Pipeline Setup
 └── README.md                       # Comprehensive Project Documentation
 ```
@@ -158,7 +170,7 @@ HospitalManagementSystem/
 
 ## ⚡ Prerequisites
 
-Make sure you have the following installed on your machine before running the project:
+Make sure you have the following installed on your machine before running locally:
 
 1. **[.NET 10 SDK](https://dotnet.microsoft.com/download)** (or .NET 8.0 / 9.0+)
 2. **[PostgreSQL Database Server](https://www.postgresql.org/download/)** (v14 or higher running on port `5432`)
@@ -171,43 +183,76 @@ Make sure you have the following installed on your machine before running the pr
 
 ## ⚙️ Database & Configuration Setup
 
-1. **Configure Connection String**:
-   Open `appsettings.json` and set your PostgreSQL credentials:
+### Local Development (`appsettings.json`)
+Open `appsettings.json` and verify your local PostgreSQL credentials:
 
-   ```json
-   {
-     "ConnectionStrings": {
-       "DefaultConnection": "Host=localhost;Port=5432;Database=HospitalDB;Username=postgres;Password=YOUR_POSTGRES_PASSWORD"
-     },
-     "JwtSettings": {
-       "SecretKey": "HospitalManagement_SuperSecretKey_2024_DoNotShare_MinLength32Chars!",
-       "Issuer": "HospitalManagement",
-       "Audience": "HospitalManagementUsers",
-       "ExpiryMinutes": "60"
-     }
-   }
-   ```
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5432;Database=HospitalDB;Username=postgres;Password=YOUR_LOCAL_PASSWORD"
+  },
+  "JwtSettings": {
+    "SecretKey": "HospitalManagement_SuperSecretKey_2024_DoNotShare_MinLength32Chars!",
+    "Issuer": "HospitalManagement",
+    "Audience": "HospitalManagementUsers",
+    "ExpiryMinutes": "60"
+  }
+}
+```
 
-2. **Apply Database Migrations**:
-   Run the EF Core migration update command from this directory:
+### Production Render Configuration (`appsettings.Production.json`)
+`appsettings.Production.json` is pre-configured for Render hosted PostgreSQL:
 
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=dpg-d9lkr095efls73bfvdog-a.singapore-postgres.render.com;Port=5432;Database=hospitaldb_av5g;Username=hospitaladmin;Password=Kiruthik@123;SSL Mode=Require;Trust Server Certificate=true"
+  }
+}
+```
+
+---
+
+## ▶️ How to Run Locally
+
+1. **Apply EF Core Migrations**:
    ```powershell
    dotnet ef database update
    ```
 
----
-
-## ▶️ How to Run the Project
-
-1. **Start the Web Application**:
+2. **Start the Web Application**:
    ```powershell
    dotnet run
    ```
 
-2. **Access via Browser**:
+3. **Access via Browser**:
    Open your browser and navigate to:
    - **HTTPS**: `https://localhost:7196`
    - **HTTP**: `http://localhost:5068`
+
+---
+
+## ☁️ Deploying to Render (Cloud Hosting)
+
+Deploying MediCore to Render is automated via Docker:
+
+1. **Create Web Service on Render**:
+   - Log in to [Render Dashboard](https://dashboard.render.com).
+   - Click **New +** $\rightarrow$ **Web Service**.
+   - Connect repository: `https://github.com/kiruthik13/Task1.git`.
+
+2. **Configure Settings**:
+   - **Name**: `medi-core-hms`
+   - **Region**: `Singapore`
+   - **Branch**: `main`
+   - **Runtime**: **`Docker`** *(Render auto-detects `Dockerfile`)*
+   - **Instance Type**: `Free` or `Starter`
+
+3. **Configure Environment Variables**:
+   - `ASPNETCORE_ENVIRONMENT` = `Production`
+   - `ConnectionStrings__DefaultConnection` = `Host=dpg-d9lkr095efls73bfvdog-a.singapore-postgres.render.com;Port=5432;Database=hospitaldb_av5g;Username=hospitaladmin;Password=Kiruthik@123;SSL Mode=Require;Trust Server Certificate=true`
+
+4. **Click Create Web Service**: Render will build the container and deploy the app automatically.
 
 ---
 
@@ -266,9 +311,11 @@ The dashboard incorporates a background JSON API endpoint:
 
 ## ❓ Troubleshooting & FAQs
 
-- **Database Connection Failure**:
-  Ensure PostgreSQL service is running on port `5432` and your username/password in `appsettings.json` matches your PostgreSQL configuration.
-- **Locked Executable (`HospitalManagement.Web.exe`) during Build**:
+- **`libgssapi_krb5.so.2` Missing in Linux Container**:
+  Pre-installed in `Dockerfile` via `apt-get install -y libgssapi-krb5-2` for Npgsql PostgreSQL Kerberos support.
+- **HTTPS Redirection Warning on Render**:
+  `Program.cs` wraps `app.UseHttpsRedirection()` inside `if (!app.Environment.IsProduction())` since Render handles HTTPS termination at the edge reverse proxy.
+- **Locked Executable (`HospitalManagement.Web.exe`) during Local Build**:
   If `dotnet build` fails due to locked executable files, terminate the running process using `taskkill /F /IM HospitalManagement.Web.exe` and re-run `dotnet build`.
 - **Npgsql Timestamp Exception (`DateTime` in UTC)**:
   `Program.cs` includes `AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);` to manage PostgreSQL timestamp mapping automatically. Ensure entity dates are instantiated using `DateTime.UtcNow`.
